@@ -40,9 +40,29 @@ const (
 
 // EvaluateHand evaluates the hand and returns its rank
 func EvaluateHand(hand Hand) HandRank {
-	// This function should be filled with logic to evaluate the hand.
-	// This is a placeholder for simplicity.
-	return HighCard // Replace with actual hand evaluation logic
+	rankCounts := make(map[byte]int)
+	for _, card := range hand {
+		rankCounts[card.Rank]++
+	}
+
+	pairs := 0
+	for _, count := range rankCounts {
+		switch count {
+		case 2:
+			pairs++
+		case 3:
+			return ThreeOfAKind
+			// Add cases for other hand types
+		}
+	}
+
+	if pairs == 1 {
+		return Pair
+	} else if pairs == 2 {
+		return TwoPair
+	}
+
+	return HighCard
 }
 
 // SortHand sorts the hand by rank and suit
@@ -57,9 +77,7 @@ func SortHand(hand Hand) {
 
 func main() {
 	// Example: Create a hand
-	hand := Hand{NewCard("Qh"), NewCard("9h"), NewCard("Th"), NewCard("Jh"), NewCard("Kh")}
-
-	// Sort the hand (optional, but can be helpful for evaluation)
+	hand := Hand{NewCard("Qh"), NewCard("9d"), NewCard("1s"), NewCard("1d"), NewCard("Qh")}
 	SortHand(hand)
 
 	// Evaluate the hand
