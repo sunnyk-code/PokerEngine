@@ -23,30 +23,20 @@ func NewCard(cardStr string) Card {
 }
 
 // HandRank defines the rank of a hand (e.g., pair, straight)
-type HandRank int
+type HandRank string
 
 const (
-	HighCard HandRank = iota
-	Pair
-	TwoPair
-	ThreeOfAKind
-	Straight
-	Flush
-	FullHouse
-	FourOfAKind
-	StraightFlush
-	RoyalFlush
+	HighCard      HandRank = "High Card"
+	Pair                   = "Pair"
+	TwoPair                = "Two Pair"
+	ThreeOfAKind           = "Three of a Kind"
+	Straight               = "Straight"
+	Flush                  = "Flush"
+	FullHouse              = "Full House"
+	FourOfAKind            = "Four of a Kind"
+	StraightFlush          = "Straight Flush"
+	RoyalFlush             = "Royal Flush"
 )
-
-func isFlush(hand Hand) bool {
-	suit := hand[0].Suit
-	for _, card := range hand[1:] {
-		if card.Suit != suit {
-			return false
-		}
-	}
-	return true
-}
 
 func isStraight(hand Hand) bool {
 	var ranks []int
@@ -63,62 +53,62 @@ func isStraight(hand Hand) bool {
 	return true
 }
 
-func countRanks(hand Hand) map[byte]int {
+func EvaluateHand(hand Hand) HandRank {
 	rankCounts := make(map[byte]int)
+	suitCounts := make(map[byte]int)
+	var ranks []int
+
 	for _, card := range hand {
 		rankCounts[card.Rank]++
-	}
-	return rankCounts
-}
-
-func evaluateByCount(rankCounts map[byte]int) HandRank {
-	pairs := 0
-	threeOfAKindFound := false
-
-	for _, count := range rankCounts {
-		switch count {
-		case 4:
-			return FourOfAKind
-		case 3:
-			threeOfAKindFound = true
-		case 2:
-			pairs++
-		}
+		suitCounts[card.Suit]++
+		ranks = append(ranks, int(card.Rank))
 	}
 
-	if threeOfAKindFound && pairs > 0 {
-		return FullHouse
-	}
-	if threeOfAKindFound {
-		return ThreeOfAKind
-	}
-	if pairs == 2 {
-		return TwoPair
-	}
-	if pairs == 1 {
-		return Pair
-	}
+	sort.Ints(ranks)
 
-	return HighCard
-}
+	isFlush := len(suitCounts) == 1
 
-func EvaluateHand(hand Hand) HandRank {
-	rankCounts := countRanks(hand)
-	if isFlush(hand) && isStraight(hand) {
-		if hand[0].Rank == 'a' {
+	isStraight := isStraight(hand)
+
+	if isFlush && isStraight {
+		if ranks[0] == int('T') { // Checking if the lowest card is a Ten
 			return RoyalFlush
 		}
 		return StraightFlush
 	}
-
-	if isFlush(hand) {
+	if isFlush {
 		return Flush
 	}
-	if isStraight(hand) {
+	if isStraight {
 		return Straight
 	}
 
-	return evaluateByCount(rankCounts)
+	var maxCount, secondMaxCount int
+	for _, count := range rankCounts {
+		if count > maxCount {
+			secondMaxCount = maxCount
+			maxCount = count
+		} else if count > secondMaxCount {
+			secondMaxCount = count
+		}
+	}
+
+	switch maxCount {
+	case 4:
+		return FourOfAKind
+	case 3:
+		if secondMaxCount >= 2 {
+			return FullHouse
+		}
+		return ThreeOfAKind
+	case 2:
+		if secondMaxCount == 2 {
+			return TwoPair
+		}
+		return Pair
+	}
+
+	return HighCard
 }
 
 // SortHand sorts the hand by rank and suit
@@ -133,7 +123,7 @@ func SortHand(hand Hand) {
 
 func main() {
 	// Example: Create a hand
-	hand := Hand{NewCard("1h"), NewCard("2h"), NewCard("3h"), NewCard("4h"), NewCard("5h")}
+	hand := Hand{NewCard("1h"), NewCard("1d"), NewCard("3s"), NewCard("4h"), NewCard("5h")}
 	SortHand(hand)
 
 	// Evaluate the hand
