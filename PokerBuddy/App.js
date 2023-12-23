@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView } from 'react-native';
 import { Camera } from 'expo-camera';
 
 const { width, height } = Dimensions.get('window');
@@ -67,6 +67,17 @@ export default function App() {
     </View>
   );
 
+  const renderAnalyzeButton = () => {
+    if (photo1 && photo2) {
+      return (
+        <TouchableOpacity style={styles.analyzeButtonLarge}>
+          <Text style={styles.analyzeButtonText}>Analyze</Text>
+        </TouchableOpacity>
+      );
+    }
+    return null;
+  };
+
   if (hasPermission === null) {
     return <View />;
   }
@@ -75,19 +86,20 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>PokerBuddy</Text>
       </View>
       {renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1)}
       {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2)}
-    </View>
+      {renderAnalyzeButton()}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#f0f0f0',
     alignItems: 'center',
   },
@@ -155,5 +167,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#000',
     marginTop: 20,
+  },
+  analyzeButton: {
+    backgroundColor: '#007AFF',
+    padding: 20,
+    borderRadius: 10,
+    marginTop: 20,
+    marginBottom: 20,
+    width: '100%',
+  },
+  analyzeButtonText: {
+    color: '#007AFF',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
