@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -120,11 +119,11 @@ func SortHand(hand Hand) {
 	})
 }
 
-func main() {
-	hand := Hand{NewCard("1h"), NewCard("1d"), NewCard("3s"), NewCard("4h"), NewCard("5h")}
-	SortHand(hand)
+// func main() {
+// 	hand := Hand{NewCard("1h"), NewCard("1d"), NewCard("3s"), NewCard("4h"), NewCard("5h")}
+// 	SortHand(hand)
 
-	handRank := EvaluateHand(hand)
+// 	handRank := EvaluateHand(hand)
 
-	fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
-}
+// 	fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
+// }
