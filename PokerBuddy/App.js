@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Button, Image, Text, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions } from 'react-native';
 import { Camera } from 'expo-camera';
+
+const { width, height } = Dimensions.get('window');
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -40,20 +42,25 @@ export default function App() {
       {photo ? (
         <View style={styles.imagePreview}>
           <Image source={{ uri: photo }} style={styles.image} />
-          <Button title="Retake" onPress={() => setPhoto(null)} color="#007AFF" />
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => setPhoto(null)}>
+            <Text style={styles.buttonText}>Retake</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <Camera 
           style={styles.camera} 
           ref={cameraRef} 
-          onCameraReady={() => setIsCameraReady(true)}
-        >
+          onCameraReady={() => setIsCameraReady(true)}>
           <View style={styles.buttonContainer}>
-            <Button 
-              title={cameraId === 1 && !hasTakenFlopPicture ? "Take a Picture of the Flop" : "Take a Picture of the Hand"} 
-              onPress={() => takePicture(cameraRef, setPhoto, isCameraReady)} 
-              color="#007AFF" 
-            />
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => takePicture(cameraRef, setPhoto, isCameraReady)}>
+              <Text style={styles.buttonText}>
+                {cameraId === 1 && !hasTakenFlopPicture ? "Take a Picture of the Flop" : "Take a Picture of the Hand"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </Camera>
       )}
@@ -64,11 +71,14 @@ export default function App() {
     return <View />;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return <Text style={styles.permissionText}>No access to camera</Text>;
   }
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>PokerBuddy</Text>
+      </View>
       {renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1)}
       {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2)}
     </View>
@@ -78,16 +88,29 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000', // Black background
-    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
     alignItems: 'center',
   },
+  header: {
+    backgroundColor: '#007AFF',
+    width: width,
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'flex-end', 
+    paddingTop: 50,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Arial',
+  },
   cameraContainer: {
-    width: Dimensions.get('window').width * 0.9,
-    height: Dimensions.get('window').height * 0.4,
-    borderRadius: 10,
-    overflow: 'hidden', // Needed to make the rounded corners work
-    backgroundColor: '#FFFFFF', // White background for the camera container
+    width: width * 0.9,
+    height: height * 0.4,
+    borderRadius: 20,
+    marginVertical: 10,
+    backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -104,7 +127,19 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     backgroundColor: 'transparent',
-    paddingBottom: 10,
+    paddingBottom: 20,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   imagePreview: {
     flex: 1,
@@ -115,5 +150,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '80%',
     borderRadius: 8,
+  },
+  permissionText: {
+    fontSize: 18,
+    color: '#000',
+    marginTop: 20,
   },
 });
