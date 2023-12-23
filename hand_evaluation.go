@@ -71,7 +71,7 @@ func EvaluateHand(hand Hand) HandRank {
 	isStraight := isStraight(hand)
 
 	if isFlush && isStraight {
-		if ranks[0] == int('T') { // Checking if the lowest card is a Ten
+		if ranks[0] == int('T') {
 			return RoyalFlush
 		}
 		return StraightFlush
@@ -111,7 +111,6 @@ func EvaluateHand(hand Hand) HandRank {
 	return HighCard
 }
 
-// SortHand sorts the hand by rank and suit
 func SortHand(hand Hand) {
 	sort.Slice(hand, func(i, j int) bool {
 		if hand[i].Rank == hand[j].Rank {
@@ -122,11 +121,9 @@ func SortHand(hand Hand) {
 }
 
 func main() {
-	// Example: Create a hand
 	hand := Hand{NewCard("1h"), NewCard("1d"), NewCard("3s"), NewCard("4h"), NewCard("5h")}
 	SortHand(hand)
 
-	// Evaluate the hand
 	handRank := EvaluateHand(hand)
 
 	fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
