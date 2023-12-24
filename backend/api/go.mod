@@ -1,13 +1,15 @@
-module PokerEngine
+module api
 
 go 1.21.5
 
-replace api => /api
-
-require api v0.0.0-00010101000000-000000000000
+replace pokerLogic => ../pokerLogic
 
 require (
-	github.com/labstack/echo/v4 v4.11.4 // indirect
+	github.com/labstack/echo/v4 v4.11.4
+	pokerLogic v0.0.0-00010101000000-000000000000
+)
+
+require (
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -17,7 +19,4 @@ require (
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	pokerLogic v0.0.0-00010101000000-000000000000 // indirect
 )
-
-replace pokerLogic => /pokerLogic
