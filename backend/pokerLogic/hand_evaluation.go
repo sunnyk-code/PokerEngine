@@ -1,120 +1,94 @@
 package pokerLogic
 
-// import (
-// 	"sort"
-// )
+import (
+	"sort"
+)
 
-// // Card represents a playing card with a rank and a suit
-// type Card struct {
-// 	Rank byte
-// 	Suit byte
-// }
+// Hand represents a set of cards
+type Hand []Card
 
-// // Hand represents a set of cards
-// type Hand []Card
+// HandRank defines the rank of a hand (e.g., pair, straight)
+type HandRank string
 
-// // NewCard creates a new card given its rank and suit
-// func NewCard(cardStr string) Card {
-// 	return Card{
-// 		Rank: cardStr[0],
-// 		Suit: cardStr[1],
-// 	}
-// }
+const (
+	HighCard HandRank      = "High Card"
+	Pair                   = "Pair"
+	TwoPair                = "Two Pair"
+	Trips                  = "Trips"
+	Straight               = "Straight"
+	Flush                  = "Flush"
+	FullHouse              = "Full House"
+	Quads            	   = "Quads"
+	StraightFlush          = "Straight Flush"
+	RoyalFlush             = "Royal Flush"
+)
 
-// // HandRank defines the rank of a hand (e.g., pair, straight)
-// type HandRank string
+func isStraight(hand Hand) bool {
+	var ranks []int
+	for _, card := range hand {
+		ranks = append(ranks, int(card.Rank))
+	}
+	sort.Ints(ranks)
 
-// const (
-// 	HighCard      HandRank = "High Card"
-// 	Pair                   = "Pair"
-// 	TwoPair                = "Two Pair"
-// 	ThreeOfAKind           = "Three of a Kind"
-// 	Straight               = "Straight"
-// 	Flush                  = "Flush"
-// 	FullHouse              = "Full House"
-// 	FourOfAKind            = "Four of a Kind"
-// 	StraightFlush          = "Straight Flush"
-// 	RoyalFlush             = "Royal Flush"
-// )
+	for i := 1; i < len(ranks); i++ {
+		if ranks[i] != ranks[i-1]+1 {
+			return false
+		}
+	}
+	return true
+}
 
-// func isStraight(hand Hand) bool {
-// 	var ranks []int
-// 	for _, card := range hand {
-// 		ranks = append(ranks, int(card.Rank))
-// 	}
-// 	sort.Ints(ranks)
+func EvaluateHand(hand Hand) HandRank {
+	rankCounts := make(map[byte]int)
+	suitCounts := make(map[byte]int)
 
-// 	for i := 1; i < len(ranks); i++ {
-// 		if ranks[i] != ranks[i-1]+1 {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
+	for _, card := range hand {
+		rankCounts[byte(card.Rank)]++
+		suitCounts[byte(card.Suit)]++
+	}
 
-// func EvaluateHand(hand Hand) HandRank {
-// 	rankCounts := make(map[byte]int)
-// 	suitCounts := make(map[byte]int)
-// 	var ranks []int
+	isFlush := len(suitCounts) == 1
+	isStraight := isStraight(hand)
 
-// 	for _, card := range hand {
-// 		rankCounts[card.Rank]++
-// 		suitCounts[card.Suit]++
-// 		ranks = append(ranks, int(card.Rank))
-// 	}
+	if isFlush && isStraight {
+		if rankCounts[10] == 1 && rankCounts[14] == 1 {
+			return RoyalFlush
+		}
+		return StraightFlush
+	}
 
-// 	sort.Ints(ranks)
+	if isFlush {
+		return Flush
+	}
 
-// 	isFlush := len(suitCounts) == 1
+	if isStraight {
+		return Straight
+	}
 
-// 	isStraight := isStraight(hand)
+	var maxCount, secondMaxCount int
+	for _, count := range rankCounts {
+		if count > maxCount {
+			secondMaxCount = maxCount
+			maxCount = count
+		} else if count > secondMaxCount {
+			secondMaxCount = count
+		}
+	}
 
-// 	if isFlush && isStraight {
-// 		if ranks[0] == int('T') {
-// 			return RoyalFlush
-// 		}
-// 		return StraightFlush
-// 	}
-// 	if isFlush {
-// 		return Flush
-// 	}
-// 	if isStraight {
-// 		return Straight
-// 	}
+	switch maxCount {
+	case 4:
+		return Quads
+	case 3:
+		if secondMaxCount >= 2 {
+			return FullHouse
+		}
+		return Trips
+	case 2:
+		if secondMaxCount == 2 {
+			return TwoPair
+		}
+		return Pair
+	}
 
-// 	var maxCount, secondMaxCount int
-// 	for _, count := range rankCounts {
-// 		if count > maxCount {
-// 			secondMaxCount = maxCount
-// 			maxCount = count
-// 		} else if count > secondMaxCount {
-// 			secondMaxCount = count
-// 		}
-// 	}
-
-// 	switch maxCount {
-// 	case 4:
-// 		return FourOfAKind
-// 	case 3:
-// 		if secondMaxCount >= 2 {
-// 			return FullHouse
-// 		}
-// 		return ThreeOfAKind
-// 	case 2:
-// 		if secondMaxCount == 2 {
-// 			return TwoPair
-// 		}
-// 		return Pair
-// 	}
-
-// 	return HighCard
-// }
-
-// func SortHand(hand Hand) {
-// 	sort.Slice(hand, func(i, j int) bool {
-// 		if hand[i].Rank == hand[j].Rank {
-// 			return hand[i].Suit < hand[j].Suit
-// 		}
-// 		return hand[i].Rank < hand[j].Rank
-// 	})
-// }
+	return HighCard
+}

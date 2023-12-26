@@ -1,7 +1,7 @@
 /*
 	This file contains the definition of a Card in our application (Based off of pokerlib)
 
-We represent cards as 6 bits, with 4 bits for the Rank followed by 2 bits for the Rank.
+We represent cards as 6 bits, with 4 bits for the Rank followed by 2 bits for the Suit.
 
 The Suit is represented as follows:
 
@@ -25,6 +25,7 @@ package pokerLogic
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Rank int
@@ -73,16 +74,16 @@ func (r Rank) String() string {
 
 func (s Suit) String() string {
 	switch s {
-	case Spades:
-		return "Spades"
-	case Hearts:
-		return "Hearts"
-	case Diamonds:
-		return "Diamonds"
-	case Clubs:
-		return "Clubs"
-	default:
-		return "Unknown Suit"
+		case Spades:
+			return "♤"
+		case Hearts:
+			return "♡"
+		case Diamonds:
+			return "♦"
+		case Clubs:
+			return "♣"
+		default:
+			return "Unknown Suit"
 	}
 }
 
@@ -91,12 +92,55 @@ type Card struct {
 	Suit Suit `json:"suit"`
 }
 
+
+// NewCard creates a new card given its rank and suit
+func extractCard(cardStr string) (Rank, Suit) {
+	split_card := strings.Split(cardStr, "_")
+
+	raw_rank := strings.ToUpper(string(split_card[0]))
+	raw_suit := strings.ToUpper(string(split_card[1]))
+
+	var rank_map = map[string]Rank {
+		"2": Two,
+		"3": Three,
+		"4": Four,
+		"5": Five,
+		"6": Six,
+		"7": Seven,
+		"8": Eight,
+		"9": Nine,
+		"10": Ten,
+		"J": Jack,
+		"Q": Queen,
+		"K": King,
+		"A": Ace,
+	}
+	
+	var suit_map = map[string]Suit {
+		"♤": Spades,
+		"♦": Diamonds,
+		"♡": Hearts,
+		"♣": Clubs,
+	}
+
+	return rank_map[raw_rank], suit_map[raw_suit]
+}
+
+func NewCard(cardStr string) Card {	
+	rank, suit := extractCard(cardStr)
+
+	return Card {
+		Rank: rank,
+		Suit: suit,
+	}
+}
+
 func (c Card) GetAbsoluteValue() int {
 	return 13*(int(c.Suit)-1) + int(c.Rank) - 2
 }
 
 func (c Card) String() string {
-	return fmt.Sprintf("%s of %s", c.Rank.String(), c.Suit.String())
+	return fmt.Sprintf("%s%s", c.Rank.String(), c.Suit.String())
 }
 
 func (c Card) Equals(other Card) bool {

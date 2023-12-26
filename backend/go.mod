@@ -1,8 +1,9 @@
-module PokerEngine
+module backend
 
 go 1.21.5
 
-replace api => /api
+replace api => ./api
+replace pokerLogic => ./pokerLogic
 
 require api v0.0.0-00010101000000-000000000000
 
@@ -19,5 +20,3 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	pokerLogic v0.0.0-00010101000000-000000000000 // indirect
 )
-
-replace pokerLogic => /pokerLogic

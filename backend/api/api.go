@@ -6,18 +6,33 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"math/rand"
+	"time"
+
 	p "pokerLogic"
 )
 
 func helloWorld(c echo.Context) error {
+	// Seed the random number generator
+    rand.Seed(time.Now().UnixNano())
 
-	hand := p.Hand{p.NewCard("1h"), p.NewCard("1d"), p.NewCard("3s"), p.NewCard("4h"), p.NewCard("5h")}
-	p.SortHand(hand)
+    // Define slices for card numbers and suits
+    numbers := []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
+    suits := []string{"♣", "♦", "♡", "♤"}
 
-	handRank := p.EvaluateHand(hand)
+	for i := 0; i < 10; i++ {
+		var selectedCards []p.Card
 
-	fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
+		for j := 0; j < 5; j++ {
+			number := numbers[rand.Intn(len(numbers))]
+			suit := suits[rand.Intn(len(suits))]
+			selectedCards = append(selectedCards, p.NewCard(number + "_" + suit))
+		}
 
+		hand := p.Hand(selectedCards)
+		handRank := p.EvaluateHand(hand)
+		fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
+	}
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
@@ -26,5 +41,5 @@ func StartServer() {
 
 	e.GET("/", helloWorld)
 
-	e.Start(":8080")
+	e.Logger.Fatal(e.Start(":8080"))
 }
