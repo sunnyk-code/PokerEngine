@@ -14,11 +14,11 @@ import (
 
 func helloWorld(c echo.Context) error {
 	// Seed the random number generator
-    rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 
-    // Define slices for card numbers and suits
-    numbers := []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
-    suits := []string{"♣", "♦", "♡", "♤"}
+	// Define slices for card numbers and suits
+	numbers := []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
+	suits := []string{"♣", "♦", "♡", "♤"}
 
 	for i := 0; i < 10; i++ {
 		var selectedCards []p.Card
@@ -26,7 +26,7 @@ func helloWorld(c echo.Context) error {
 		for j := 0; j < 5; j++ {
 			number := numbers[rand.Intn(len(numbers))]
 			suit := suits[rand.Intn(len(suits))]
-			selectedCards = append(selectedCards, p.NewCard(number + "_" + suit))
+			selectedCards = append(selectedCards, p.NewCard(number+"_"+suit))
 		}
 
 		hand := p.Hand(selectedCards)

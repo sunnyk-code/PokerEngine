@@ -1,5 +1,5 @@
 /*
-	This file contains the definition of a Card in our application (Based off of pokerlib)
+This file contains the definition of a Card in our application (Based off of pokerlib https://pkg.go.dev/github.com/rbaderts/pokerlib)
 
 We represent cards as 6 bits, with 4 bits for the Rank followed by 2 bits for the Suit.
 
@@ -68,22 +68,22 @@ func (r Rank) String() string {
 	case Ace:
 		return "A"
 	default:
-		return "Unknown"
+		return "Unknown Rank"
 	}
 }
 
 func (s Suit) String() string {
 	switch s {
-		case Spades:
-			return "♤"
-		case Hearts:
-			return "♡"
-		case Diamonds:
-			return "♦"
-		case Clubs:
-			return "♣"
-		default:
-			return "Unknown Suit"
+	case Spades:
+		return "♤"
+	case Hearts:
+		return "♡"
+	case Diamonds:
+		return "♦"
+	case Clubs:
+		return "♣"
+	default:
+		return "Unknown Suit"
 	}
 }
 
@@ -92,7 +92,6 @@ type Card struct {
 	Suit Suit `json:"suit"`
 }
 
-
 // NewCard creates a new card given its rank and suit
 func extractCard(cardStr string) (Rank, Suit) {
 	split_card := strings.Split(cardStr, "_")
@@ -100,23 +99,23 @@ func extractCard(cardStr string) (Rank, Suit) {
 	raw_rank := strings.ToUpper(string(split_card[0]))
 	raw_suit := strings.ToUpper(string(split_card[1]))
 
-	var rank_map = map[string]Rank {
-		"2": Two,
-		"3": Three,
-		"4": Four,
-		"5": Five,
-		"6": Six,
-		"7": Seven,
-		"8": Eight,
-		"9": Nine,
+	var rank_map = map[string]Rank{
+		"2":  Two,
+		"3":  Three,
+		"4":  Four,
+		"5":  Five,
+		"6":  Six,
+		"7":  Seven,
+		"8":  Eight,
+		"9":  Nine,
 		"10": Ten,
-		"J": Jack,
-		"Q": Queen,
-		"K": King,
-		"A": Ace,
+		"J":  Jack,
+		"Q":  Queen,
+		"K":  King,
+		"A":  Ace,
 	}
-	
-	var suit_map = map[string]Suit {
+
+	var suit_map = map[string]Suit{
 		"♤": Spades,
 		"♦": Diamonds,
 		"♡": Hearts,
@@ -126,10 +125,10 @@ func extractCard(cardStr string) (Rank, Suit) {
 	return rank_map[raw_rank], suit_map[raw_suit]
 }
 
-func NewCard(cardStr string) Card {	
+func NewCard(cardStr string) Card {
 	rank, suit := extractCard(cardStr)
 
-	return Card {
+	return Card{
 		Rank: rank,
 		Suit: suit,
 	}
@@ -150,7 +149,7 @@ func (c Card) Equals(other Card) bool {
 type CardCode int
 
 func (c Card) GetCardCode() CardCode {
-	rankVal := int(c.Rank) << 4 // Shift the rank over by 4 bits
+	rankVal := int(c.Rank) << 2 // Shift the rank over by 2 bits
 	suitVal := int(c.Suit - 1)
 	return CardCode(rankVal | suitVal)
 }
