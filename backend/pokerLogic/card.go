@@ -75,13 +75,13 @@ func (r Rank) String() string {
 func (s Suit) String() string {
 	switch s {
 	case Spades:
-		return "♤"
+		return "Spades"
 	case Hearts:
-		return "♡"
+		return "Heart"
 	case Diamonds:
-		return "♦"
+		return "Diamonds"
 	case Clubs:
-		return "♣"
+		return "Clubs"
 	default:
 		return "Unknown Suit"
 	}
@@ -149,7 +149,7 @@ func (c Card) Equals(other Card) bool {
 type CardCode int
 
 func (c Card) GetCardCode() CardCode {
-	rankVal := int(c.Rank) << 2 // Shift the rank over by 2 bits
+	rankVal := int(c.Rank) << 2
 	suitVal := int(c.Suit - 1)
 	return CardCode(rankVal | suitVal)
 }
