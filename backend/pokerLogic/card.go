@@ -28,7 +28,7 @@ import (
 	"strings"
 )
 
-type Rank int
+type Rank byte
 
 const (
 	Two Rank = iota + 2
@@ -46,7 +46,7 @@ const (
 	Ace
 )
 
-type Suit int
+type Suit byte
 
 const (
 	Spades Suit = iota + 1
@@ -75,13 +75,13 @@ func (r Rank) String() string {
 func (s Suit) String() string {
 	switch s {
 	case Spades:
-		return "Spades"
+		return "♤"
 	case Hearts:
-		return "Heart"
+		return "♡"
 	case Diamonds:
-		return "Diamonds"
+		return "♦"
 	case Clubs:
-		return "Clubs"
+		return "♣"
 	default:
 		return "Unknown Suit"
 	}

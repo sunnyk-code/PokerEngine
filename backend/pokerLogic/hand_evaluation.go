@@ -8,28 +8,22 @@ import (
 type Hand []Card
 
 // HandRank defines the rank of a hand (e.g., pair, straight)
-type HandRank string
+type HandRank int
 
 const (
-	HighCard HandRank      = "High Card"
-	Pair                   = "Pair"
-	TwoPair                = "Two Pair"
-	Trips                  = "Trips"
-	Straight               = "Straight"
-	Flush                  = "Flush"
-	FullHouse              = "Full House"
-	Quads            	   = "Quads"
-	StraightFlush          = "Straight Flush"
-	RoyalFlush             = "Royal Flush"
+	HighCard HandRank      = iota * 1000000000
+	Pair
+	TwoPair
+	Trips
+	Straight
+	Flush
+	FullHouse
+	Quads
+	StraightFlush
+	RoyalFlush
 )
 
-func isStraight(hand Hand) bool {
-	var ranks []int
-	for _, card := range hand {
-		ranks = append(ranks, int(card.Rank))
-	}
-	sort.Ints(ranks)
-
+func isStraight(ranks []int) bool {
 	for i := 1; i < len(ranks); i++ {
 		if ranks[i] != ranks[i-1]+1 {
 			return false
@@ -38,57 +32,95 @@ func isStraight(hand Hand) bool {
 	return true
 }
 
-func EvaluateHand(hand Hand) HandRank {
-	rankCounts := make(map[byte]int)
-	suitCounts := make(map[byte]int)
+func EvaluateHand(hand Hand) (string, int) {
+	var ranks []int
+	for _, card := range hand {
+		ranks = append(ranks, int(card.Rank))
+	}
+	sort.Ints(ranks)
+	
+	rankCounts := make(map[int]int)
+	suitCounts := make(map[int]int)
 
 	for _, card := range hand {
-		rankCounts[byte(card.Rank)]++
-		suitCounts[byte(card.Suit)]++
+		rankCounts[int(card.Rank)]++
+		suitCounts[int(card.Suit)]++
 	}
 
 	isFlush := len(suitCounts) == 1
-	isStraight := isStraight(hand)
+	isStraight := isStraight(ranks)
 
 	if isFlush && isStraight {
-		if rankCounts[10] == 1 && rankCounts[14] == 1 {
-			return RoyalFlush
+		if ranks[0] == 10 {
+			return "RoyalFlush", int(RoyalFlush)
 		}
-		return StraightFlush
+		return "StraightFlush", int(StraightFlush) + ranks[len(ranks) - 1]
 	}
 
 	if isFlush {
-		return Flush
+		return "Flush", int(Flush) + ranks[len(ranks) - 1]
 	}
 
 	if isStraight {
-		return Straight
+		return "Straight", int(Straight) + ranks[len(ranks) - 1]
 	}
 
+	var maxCountRank, secondMaxCountRank int
 	var maxCount, secondMaxCount int
-	for _, count := range rankCounts {
+	for rank, count := range rankCounts {
 		if count > maxCount {
 			secondMaxCount = maxCount
+			secondMaxCountRank = maxCountRank
 			maxCount = count
+			maxCountRank = rank
 		} else if count > secondMaxCount {
 			secondMaxCount = count
+			secondMaxCountRank = rank
 		}
 	}
 
 	switch maxCount {
 	case 4:
-		return Quads
-	case 3:
-		if secondMaxCount >= 2 {
-			return FullHouse
+		kicker := 0
+		for _, rank := range ranks {
+			if rank != maxCountRank {
+				kicker = rank
+				break
+			}
 		}
-		return Trips
+		return "Quads", int(Quads) + maxCountRank*10000000 + kicker
+	case 3:
+		if secondMaxCount == 2 {
+			return "FullHouse", int(FullHouse) + maxCountRank*10000000 + secondMaxCountRank
+		}
+		var kickers []int
+		for _, rank := range ranks {
+			if rank != maxCountRank {
+				kickers = append(kickers, rank)
+			}
+		}
+		sort.Sort(sort.Reverse(sort.IntSlice(kickers)))
+		return "Trips", int(Trips) + maxCountRank*10000000 + kickers[0]*100000 + kickers[1]*1000
 	case 2:
 		if secondMaxCount == 2 {
-			return TwoPair
+			kicker := 0
+			for _, rank := range ranks {
+				if rank != maxCountRank && rank != secondMaxCountRank {
+					kicker = rank
+					break
+				}
+			}
+			return "TwoPair", int(TwoPair) + max(maxCountRank, secondMaxCountRank)*10000000 + min(maxCountRank, secondMaxCountRank)*100000 + kicker*1000
 		}
-		return Pair
+		var kickers []int
+		for _, rank := range ranks {
+			if rank != maxCountRank {
+				kickers = append(kickers, rank)
+			}
+		}
+		sort.Sort(sort.Reverse(sort.IntSlice(kickers)))
+		return "Pair", int(Pair) + maxCountRank*10000000 + kickers[0]*100000 + kickers[1]*1000 + kickers[2]*10
 	}
 
-	return HighCard
+	return "HighCard", int(HighCard) + ranks[4]*10000000 + ranks[3]*100000 + ranks[2]*1000 + ranks[1]*10 + ranks[0]
 }

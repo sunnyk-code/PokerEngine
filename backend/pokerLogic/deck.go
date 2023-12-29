@@ -3,9 +3,7 @@ package pokerLogic
 import (
 	"errors"
 	"fmt"
-	_ "math/rand"
 	"time"
-	_ "time"
 
 	"github.com/dgryski/go-pcgr"
 )
@@ -53,16 +51,17 @@ func NewDeck() *Deck {
 	index := 0
 	for rank := Two; rank <= Ace; rank++ {
 		for suit := 1; suit <= 4; suit++ {
-			card := Card{Index(rank), Suit(suit)}
-			deck.appendCard(card)
+			card := Card{Rank(rank), Suit(suit)}
+			deck.appendToBottom(card)
 			index++
 		}
 	}
 	return deck
 }
 
-func (this *Deck) BorrowRandom() Card {
-	var card *Card
+func (this *Deck) BorrowRandom() *Card {
+	// var card *Card
+	var randomCard *Card
 	for {
 		index := int(this.rnd.Bound(uint32(52)))
 		randomCard = this.cardArray[index]
@@ -78,7 +77,7 @@ func (this *Deck) BorrowRandom() Card {
 
 func (this *Deck) ReturnCard(card Card) error {
 	index := this.cardIndex[card]
-	if this.cardArray[imdex] != nil {
+	if this.cardArray[index] != nil {
 		return errors.New(fmt.Sprintf("This card - %v, was not taken from the deck\n", card))
 	}
 	this.cardArray[index] = &card

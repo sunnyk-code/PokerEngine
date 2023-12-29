@@ -20,7 +20,7 @@ func helloWorld(c echo.Context) error {
 	numbers := []string{"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"}
 	suits := []string{"♣", "♦", "♡", "♤"}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 150; i++ {
 		var selectedCards []p.Card
 
 		for j := 0; j < 5; j++ {
@@ -30,8 +30,8 @@ func helloWorld(c echo.Context) error {
 		}
 
 		hand := p.Hand(selectedCards)
-		handRank := p.EvaluateHand(hand)
-		fmt.Printf("Hand: %v, Rank: %v\n", hand, handRank)
+		handRank, handValue := p.EvaluateHand(hand)
+		fmt.Printf("Hand: %v, Rank: %v: %v\n", hand, handRank, handValue)
 	}
 	return c.String(http.StatusOK, "Hello, World!")
 }
