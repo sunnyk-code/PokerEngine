@@ -24,8 +24,17 @@ const (
 )
 
 func isStraight(ranks []int) bool {
-	for i := 1; i < len(ranks); i++ {
+	for i := 1; i < len(ranks) - 1; i++ {
 		if ranks[i] != ranks[i-1]+1 {
+			return false
+		}
+	}
+	if ranks[len(ranks) - 1] != ranks[len(ranks) - 2] + 1 {
+		if ranks[len(ranks) - 1] == 14 {
+			if ranks[0] != 2 {
+				return false
+			}
+		} else {
 			return false
 		}
 	}
@@ -53,6 +62,8 @@ func EvaluateHand(hand Hand) (string, int) {
 	if isFlush && isStraight {
 		if ranks[0] == 10 {
 			return "RoyalFlush", int(RoyalFlush)
+		} else if ranks[0] == 2 && ranks[len(ranks) - 1] == 14 {
+			return  "StraightFlush", int(StraightFlush) + 5
 		}
 		return "StraightFlush", int(StraightFlush) + ranks[len(ranks) - 1]
 	}
@@ -62,7 +73,10 @@ func EvaluateHand(hand Hand) (string, int) {
 	}
 
 	if isStraight {
-		return "Straight", int(Straight) + ranks[len(ranks) - 1]
+		if ranks[0] == 2 && ranks[len(ranks) - 1] == 14 {
+			return  "StraightFlush", int(StraightFlush) + 5
+		}
+		return "StraightFlush", int(StraightFlush) + ranks[len(ranks) - 1]
 	}
 
 	var maxCountRank, secondMaxCountRank int
