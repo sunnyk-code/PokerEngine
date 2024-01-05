@@ -68,7 +68,7 @@ func (this *Deck) BorrowRandom() *Card {
 		if randomCard == nil {
 			continue
 		}
-		this.cardArray[index] = nil
+		this.removeCard(*randomCard)
 		break
 	}
 
@@ -82,4 +82,22 @@ func (this *Deck) ReturnCard(card Card) error {
 	}
 	this.cardArray[index] = &card
 	return nil
+}
+
+func (d *Deck) Copy() *Deck {
+	newDeck := new(Deck)
+	newDeck.rnd = &pcgr.Rand{uint64(time.Now().UnixNano()), 0x00004443}
+	newDeck.cardIndex = make(map[Card]int, 0)
+	newDeck.size = d.size
+	newDeck.top = d.top
+
+	for i, card := range d.cardArray {
+		if card != nil {
+			newCard := *card
+			newDeck.cardArray[i] = &newCard
+			newDeck.cardIndex[newCard] = i
+		}
+	}
+
+	return newDeck
 }
