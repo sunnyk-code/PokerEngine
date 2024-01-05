@@ -11,7 +11,7 @@ type Hand []Card
 type HandRank int
 
 const (
-	HighCard HandRank      = iota * 1000000000
+	HighCard HandRank = iota * 1000000000
 	Pair
 	TwoPair
 	Trips
@@ -24,13 +24,13 @@ const (
 )
 
 func isStraight(ranks []int) bool {
-	for i := 1; i < len(ranks) - 1; i++ {
+	for i := 1; i < len(ranks)-1; i++ {
 		if ranks[i] != ranks[i-1]+1 {
 			return false
 		}
 	}
-	if ranks[len(ranks) - 1] != ranks[len(ranks) - 2] + 1 {
-		if ranks[len(ranks) - 1] == 14 {
+	if ranks[len(ranks)-1] != ranks[len(ranks)-2]+1 {
+		if ranks[len(ranks)-1] == 14 {
 			if ranks[0] != 2 {
 				return false
 			}
@@ -41,7 +41,7 @@ func isStraight(ranks []int) bool {
 	return true
 }
 
-func EvaluateHand(hand Hand) (string, int) {
+func EvaluateFiveCardHand(hand Hand) (string, int) {
 	var ranks []int
 	for _, card := range hand {
 		ranks = append(ranks, int(card.Rank))
@@ -62,21 +62,21 @@ func EvaluateHand(hand Hand) (string, int) {
 	if isFlush && isStraight {
 		if ranks[0] == 10 {
 			return "RoyalFlush", int(RoyalFlush)
-		} else if ranks[0] == 2 && ranks[len(ranks) - 1] == 14 {
-			return  "StraightFlush", int(StraightFlush) + 5
+		} else if ranks[0] == 2 && ranks[len(ranks)-1] == 14 {
+			return "StraightFlush", int(StraightFlush) + 5
 		}
-		return "StraightFlush", int(StraightFlush) + ranks[len(ranks) - 1]
+		return "StraightFlush", int(StraightFlush) + ranks[len(ranks)-1]
 	}
 
 	if isFlush {
-		return "Flush", int(Flush) + ranks[len(ranks) - 1]
+		return "Flush", int(Flush) + ranks[len(ranks)-1]
 	}
 
 	if isStraight {
-		if ranks[0] == 2 && ranks[len(ranks) - 1] == 14 {
-			return  "StraightFlush", int(StraightFlush) + 5
+		if ranks[0] == 2 && ranks[len(ranks)-1] == 14 {
+			return "Straight", int(Straight) + 5
 		}
-		return "StraightFlush", int(StraightFlush) + ranks[len(ranks) - 1]
+		return "Straight", int(Straight) + ranks[len(ranks)-1]
 	}
 
 	var maxCountRank, secondMaxCountRank int
