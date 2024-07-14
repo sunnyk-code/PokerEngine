@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	p "pokerLogic"
+	p "backend/pokerLogic"
 )
 
 func helloWorld(c echo.Context) error {
