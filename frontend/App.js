@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView } from 'react-native';
-import { Camera } from 'expo-camera';
+import { Camera } from 'expo-camera/legacy';
 
 const { width, height } = Dimensions.get('window');
 
