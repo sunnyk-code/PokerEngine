@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView } from 'react-native';
 import { Camera } from 'expo-camera/legacy';
+import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,9 +27,7 @@ export default function App() {
       try {
         let photo = await cameraRef.current.takePictureAsync();
         setPhoto(photo.uri);
-        if (!hasTakenFlopPicture) {
-          setHasTakenFlopPicture(true);
-        }
+        console.log(photo.uri)
       } catch (error) {
         Alert.alert("Error", "Failed to take picture: " + error.message);
       }
@@ -37,28 +36,73 @@ export default function App() {
     }
   };
 
-  const renderCamera = (cameraRef, photo, setPhoto, cameraId, isCameraReady, setIsCameraReady) => (
+  const mountError = () => {
+    console.log('mount error')
+  }
+
+  const submitCommunityCards = () => {
+    setHasTakenFlopPicture(true);
+    console.log('cc run')
+  }
+
+  const submitFlop = async () => {
+    console.log('submit flop')
+    const formData = new FormData();
+
+  formData.append('image1', {
+    uri: photo1,
+    name: 'image1.jpg',
+    type: 'image/jpeg',
+  });
+
+  formData.append('image2', {
+    uri: photo2,
+    name: 'image2.jpg',
+    type: 'image/jpeg',
+  });
+
+  try {
+    const response = await axios.post('http://10.0.0.91:8080/winning-percentage', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log('Response:', response.data);
+  } catch (error) {
+    console.error('Error uploading images:', error);
+  }
+  }
+
+  const renderCamera = (cameraRef, photo, setPhoto, cameraId, isCameraReady, setIsCameraReady, submit) => (
     <View style={styles.cameraContainer}>
       {photo ? (
         <View style={styles.imagePreview}>
           <Image source={{ uri: photo }} style={styles.image} />
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => setPhoto(null)}>
-            <Text style={styles.buttonText}>Retake</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => setPhoto(null)}>
+              <Text style={styles.buttonText}>Retake</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={submit}>
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <Camera 
           style={styles.camera} 
           ref={cameraRef} 
-          onCameraReady={() => setIsCameraReady(true)}>
+          onCameraReady={() => setIsCameraReady(true)}
+          onMountError={mountError}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
               style={styles.button} 
               onPress={() => takePicture(cameraRef, setPhoto, isCameraReady)}>
               <Text style={styles.buttonText}>
-                {cameraId === 1 && !hasTakenFlopPicture ? "Take a Picture of the Flop" : "Take a Picture of the Hand"}
+                {cameraId === 1 && !hasTakenFlopPicture ? "Take a Picture of the Community Cards" : "Take a Picture of the Hand"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -67,16 +111,6 @@ export default function App() {
     </View>
   );
 
-  const renderAnalyzeButton = () => {
-    if (photo1 && photo2) {
-      return (
-        <TouchableOpacity style={styles.analyzeButtonLarge}>
-          <Text style={styles.analyzeButtonText}>Analyze</Text>
-        </TouchableOpacity>
-      );
-    }
-    return null;
-  };
 
   if (hasPermission === null) {
     return <View />;
@@ -90,9 +124,9 @@ export default function App() {
       <View style={styles.header}>
         <Text style={styles.headerText}>PokerBuddy</Text>
       </View>
-      {renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1)}
-      {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2)}
-      {renderAnalyzeButton()}
+      {!hasTakenFlopPicture && renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1, submitCommunityCards)}
+      {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2, submitFlop)}
+      
     </ScrollView>
   );
 }
@@ -119,7 +153,7 @@ const styles = StyleSheet.create({
   },
   cameraContainer: {
     width: width * 0.9,
-    height: height * 0.4,
+    height: height * 0.75,
     borderRadius: 20,
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
@@ -139,7 +173,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     backgroundColor: 'transparent',
-    paddingBottom: 20,
+    padding: 20,
+    flexDirection: 'row'
   },
   button: {
     backgroundColor: '#007AFF',
@@ -147,6 +182,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
+    margin: 10,
   },
   buttonText: {
     color: '#FFFFFF',
