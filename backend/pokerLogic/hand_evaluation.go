@@ -2,6 +2,8 @@ package pokerLogic
 
 import (
 	"sort"
+	"runtime"
+	"sync"
 )
 
 // Hand represents a set of cards
@@ -150,17 +152,31 @@ func EvaluateFiveCardHand(hand Hand) (string, int) {
 // It returns the estimated probability of winning as a float64.
 func MonteCarloSimulation(numPlayers int, numIterations int, myHand Hand, communityCards []Card, deck *Deck) float64 {
 	var wins int
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
-	for i := 0; i < numIterations; i++ {
+	numGoroutines := runtime.NumCPU()
+	iterationsPerGoroutine := numIterations / numGoroutines
 
-		// Reset the deck
-		tempDeck := deck.Copy()
-
-		if Simulation(numPlayers, myHand, communityCards, tempDeck) {
-			wins++
-		}
-
+	for g := 0; g < numGoroutines; g++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			localWins := 0
+			for i := 0; i < iterationsPerGoroutine; i++ {
+				// Reset the deck
+				tempDeck := deck.Copy()
+				if Simulation(numPlayers, myHand, communityCards, tempDeck) {
+					localWins++
+				}
+			}
+			mu.Lock()
+			wins += localWins
+			mu.Unlock()
+		}()
 	}
+
+	wg.Wait()
 	return float64(wins) / float64(numIterations)
 }
 

@@ -22,7 +22,7 @@ func (deck *Deck) appendToBottom(card Card) {
 }
 
 
-func (d *Deck) removeCard(card Card) {
+func (d *Deck) RemoveCard(card Card) {
 	index, exists := d.cardIndex[card]
 	if !exists {
 		return
@@ -56,7 +56,7 @@ func (deck *Deck) BorrowRandom() *Card {
 		if randomCard == nil {
 			continue
 		}
-		deck.removeCard(*randomCard)
+		deck.RemoveCard(*randomCard)
 		break
 	}
 

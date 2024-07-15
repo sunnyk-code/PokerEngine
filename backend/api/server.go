@@ -9,21 +9,26 @@ import (
 	p "backend/pokerLogic"
 )
 
-func helloWorld(c echo.Context) error {
+func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 	deck := p.NewDeck()
-	myHand := []p.Card{*deck.BorrowRandom(), *deck.BorrowRandom()}
+	// myHand := []p.Card{*deck.BorrowRandom(), *deck.BorrowRandom()}
+	myHand := []p.Card{
+		p.NewCard("7_♤"),
+		p.NewCard("2_♡"),
+	}
 	fmt.Println("myHand: ", myHand)
+	deck.RemoveCard(p.NewCard("7_♤"))
+	deck.RemoveCard(p.NewCard("2_♡"))
 	communityCards := make([]p.Card, 5)
 	communityCards[0] = *deck.BorrowRandom()
 	communityCards[1] = *deck.BorrowRandom()
 	fmt.Println("communityCards: ", communityCards)
 
-	winPercentage := p.MonteCarloSimulation(2, 10000, p.Hand(myHand), communityCards, deck)
+	winPercentage := p.MonteCarloSimulation(2, 100000, p.Hand(myHand), communityCards, deck)
 
 	fmt.Println("Win Percentage: ", winPercentage)
 
-	return c.String(http.StatusOK, "Hello, World!")
 }
 
 func ambiguousHands(c echo.Context) error {
@@ -59,9 +64,7 @@ func ambiguousHands(c echo.Context) error {
 }
 
 func StartServer() {
-	e := echo.New()
+	http.HandleFunc("/", helloWorld)
 
-	e.GET("/", helloWorld)
-
-	e.Logger.Fatal(e.Start(":8080"))
+	http.ListenAndServe(":8080", nil)
 }
