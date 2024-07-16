@@ -8,7 +8,7 @@ import (
     "os"
     "github.com/joho/godotenv"
     "strconv"
-    "encoding/base64"
+    p "backend/pokerLogic"
 )
 
 
@@ -79,26 +79,49 @@ func WinningPercentageHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    communityCardsFromImage := response.Results1
+    cardsSeen := make(map[string]bool)
+    communityCardsAsStrings := make([]string, 0, cardCount)
+    i := 0
+    for len(communityCardsAsStrings) != cardCount && i < len(communityCardsFromImage) {
+        card := communityCardsFromImage[i]
+        if !cardsSeen[card] {
+            communityCardsAsStrings = append(communityCardsAsStrings, card)
+            cardsSeen[card] = true
+        }
+        i += 1
+    }
+
+    handAsStrings := response.Results2
+
+    for i, card := range communityCardsAsStrings {
+        communityCardsAsStrings[i] = ConvertCardFormat(card)
+    }
+
+    for i, card := range handAsStrings {
+        handAsStrings[i] = ConvertCardFormat(card)
+    }
+
+    deck := p.NewDeck()
+
+    deck.RemoveCard(p.NewCard(handAsStrings[0]))
+    deck.RemoveCard(p.NewCard(handAsStrings[1]))
+
+    hand := []p.Card{
+		p.NewCard(handAsStrings[0]),
+		p.NewCard(handAsStrings[1]),
+	}
+
+    communityCards := make([]p.Card, len(communityCardsAsStrings))
+    for i, card := range communityCardsAsStrings {
+        communityCards[i] = p.NewCard(card)
+        deck.RemoveCard(p.NewCard(card))
+    }
+
+    winPercentage := p.MonteCarloSimulation(2, 100000, p.Hand(hand), communityCards, deck)
+
     w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(response)
+    json.NewEncoder(w).Encode(winPercentage)
     
-    // fmt.Println(cardCount)
-    
-	// // Encode the image bytes to Base64
-    // encodedImage1 := base64.StdEncoding.EncodeToString(imageBytes1)
-    // encodedImage2 := base64.StdEncoding.EncodeToString(imageBytes2)
-
-    // // Create a JSON response object
-    // response := map[string]string{
-    //     "image1": encodedImage1,
-    //     "image2": encodedImage2,
-    // }
-
-    // // Set the Content-Type header
-    // w.Header().Set("Content-Type", "application/json")
-
-    // // Encode and write the JSON response
-    // if err := json.NewEncoder(w).Encode(response); err != nil {
-    //     http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-    // }
 }
+
