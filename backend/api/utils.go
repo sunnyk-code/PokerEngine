@@ -50,6 +50,7 @@ func invokeLambda(imageData1, imageData2 []byte) (LambdaResponse, error) {
 
     return response, nil
 }
+
 // Converts from {rank}{suit} to {rank}_{suit} with suit symbol
 func ConvertCardFormat(cardStr string) string {
 	if len(cardStr) < 2 {

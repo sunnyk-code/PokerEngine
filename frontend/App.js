@@ -40,7 +40,6 @@ export default function App() {
       try {
         let photo = await cameraRef.current.takePictureAsync();
         setPhoto(photo.uri);
-        console.log(photo.uri)
       } catch (error) {
         Alert.alert("Error", "Failed to take picture: " + error.message);
       }
@@ -55,7 +54,6 @@ export default function App() {
 
   const submitCommunityCards = () => {
     setModalVisible(true);
-    console.log('cc run')
   }
   
   const handleSubmit = () => {
@@ -66,8 +64,6 @@ export default function App() {
       setCardCountInteger(number)
       setError('');
       setModalVisible(false);
-      // Handle the valid input here
-      console.log('Number of cards:', number);
       setHasTakenFlopPicture(true);
     }
   }
@@ -81,7 +77,6 @@ export default function App() {
   
 
   const submitFlop = async () => {
-    console.log('submit flop')
     const formData = new FormData();
 
     formData.append('image1', {
@@ -105,7 +100,6 @@ export default function App() {
           'API-KEY': API_KEY,
         },
       });
-      console.log('Response:', response.data);
       setWinningPercentage(response.data)
     } catch (error) {
       console.error('Error uploading images:', error);
