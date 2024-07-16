@@ -33,7 +33,7 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 func StartServer() {
 	http.HandleFunc("/", helloWorld)
-	http.HandleFunc("/winning-percentage", WinningPercentageHandler)
+	http.HandleFunc("/winning-percentage", ApiKeyMiddleware(WinningPercentageHandler))
 
 	http.ListenAndServe(":8080", nil)
 }

@@ -5,10 +5,39 @@ import (
     "fmt"
     "io"
     "net/http"
+    "os"
+    "github.com/joho/godotenv"
 )
 
 
+func init() {
+    if err := godotenv.Load(); err != nil {
+        fmt.Println("No .env file found")
+    }
+}
+
+// Middleware to check the API key
+func ApiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+
+        apiKey := os.Getenv("API_KEY")
+        requestApiKey := r.Header.Get("API-KEY")
+
+        if apiKey == "" || apiKey != requestApiKey {
+            http.Error(w, "Invalid API key", http.StatusUnauthorized)
+            return
+        }
+
+        next.ServeHTTP(w, r)
+    }
+}
+
+
+
+
 func WinningPercentageHandler(w http.ResponseWriter, r *http.Request) {
+
+
     imageData1, _, err := r.FormFile("image1")
     if err != nil {
         http.Error(w, "Failed to read image data", http.StatusBadRequest)

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView } from 'react-native';
 import { Camera } from 'expo-camera/legacy';
 import axios from 'axios';
+import { API_KEY } from '@env'
 
 const { width, height } = Dimensions.get('window');
 
@@ -65,6 +66,7 @@ export default function App() {
     const response = await axios.post('http://10.0.0.91:8080/winning-percentage', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        'API-KEY': API_KEY,
       },
     });
     console.log('Response:', response.data);

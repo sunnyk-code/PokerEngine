@@ -7,7 +7,6 @@ import (
     "github.com/aws/aws-sdk-go/aws"
     "github.com/aws/aws-sdk-go/aws/session"
     "github.com/aws/aws-sdk-go/service/lambda"
-    "github.com/dgrijalva/jwt-go"
 )
 
 type LambdaResponse struct {
