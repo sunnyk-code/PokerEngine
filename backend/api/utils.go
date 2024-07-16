@@ -16,7 +16,7 @@ type LambdaResponse struct {
 
 func invokeLambda(imageData1, imageData2 []byte) (LambdaResponse, error) {
     sess, err := session.NewSession(&aws.Config{
-        Region: aws.String("us-west-2")},
+        Region: aws.String("us-east-1")},
     )
     if err != nil {
         return LambdaResponse{}, err
@@ -34,7 +34,7 @@ func invokeLambda(imageData1, imageData2 []byte) (LambdaResponse, error) {
     }
 
     result, err := svc.Invoke(&lambda.InvokeInput{
-        FunctionName: aws.String("your-lambda-function-name"),
+        FunctionName: aws.String("poker-lambda"),
         Payload:      payloadBytes,
     })
     if err != nil {
