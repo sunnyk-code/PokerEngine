@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Text, Alert, Dimensions, ScrollView, TextInput, Button } from 'react-native';
 import { Camera } from 'expo-camera/legacy';
 import axios from 'axios';
 import { API_KEY } from '@env'
+import Modal from 'react-native-modal';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,13 +16,23 @@ export default function App() {
   const cameraRef1 = useRef(null);
   const cameraRef2 = useRef(null);
   const [hasTakenFlopPicture, setHasTakenFlopPicture] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [cardCount, setCardCount] = useState('');
+  const [cardCountInteger, setCardCountInteger] = useState(0);
+  const [error, setError] = useState('');
 
+  
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
   }, []);
+  
+
+  const handleInputChange = (value) => {
+    setCardCount(value);
+  };
 
   const takePicture = async (cameraRef, setPhoto, isCameraReady) => {
     if (cameraRef.current && isCameraReady) {
@@ -42,37 +53,61 @@ export default function App() {
   }
 
   const submitCommunityCards = () => {
-    setHasTakenFlopPicture(true);
+    setModalVisible(true);
     console.log('cc run')
   }
+  
+  const handleSubmit = () => {
+    const number = parseInt(cardCount, 10);
+    if (isNaN(number) || number < 0 || number > 5) {
+      setError('Please enter a valid number between 0 and 5.');
+    } else {
+      setCardCountInteger(number)
+      setError('');
+      setModalVisible(false);
+      // Handle the valid input here
+      console.log('Number of cards:', number);
+      setHasTakenFlopPicture(true);
+    }
+  }
+
+  const handleCancel = () => {
+    setModalVisible(false)
+    setCardCount('')
+    setError('')
+  }
+
+  
 
   const submitFlop = async () => {
     console.log('submit flop')
     const formData = new FormData();
 
-  formData.append('image1', {
-    uri: photo1,
-    name: 'image1.jpg',
-    type: 'image/jpeg',
-  });
-
-  formData.append('image2', {
-    uri: photo2,
-    name: 'image2.jpg',
-    type: 'image/jpeg',
-  });
-
-  try {
-    const response = await axios.post('http://10.0.0.91:8080/winning-percentage', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'API-KEY': API_KEY,
-      },
+    formData.append('image1', {
+      uri: photo1,
+      name: 'image1.jpg',
+      type: 'image/jpeg',
     });
-    console.log('Response:', response.data);
-  } catch (error) {
-    console.error('Error uploading images:', error);
-  }
+
+    formData.append('image2', {
+      uri: photo2,
+      name: 'image2.jpg',
+      type: 'image/jpeg',
+    });
+
+    formData.append('cardCount', cardCountInteger);
+
+    try {
+      const response = await axios.post('http://10.0.0.91:8080/winning-percentage', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'API-KEY': API_KEY,
+        },
+      });
+      console.log('Response:', response.data);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    }
   }
 
   const renderCamera = (cameraRef, photo, setPhoto, cameraId, isCameraReady, setIsCameraReady, submit) => (
@@ -128,6 +163,20 @@ export default function App() {
       </View>
       {!hasTakenFlopPicture && renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1, submitCommunityCards)}
       {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2, submitFlop)}
+      <Modal isVisible={isModalVisible}>
+        <View style={styles.modalContent}>
+          <Text>Enter the number of cards in the photo (0-5):</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={cardCount}
+            onChangeText={handleInputChange}
+          />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Button title="Submit" onPress={handleSubmit} />
+          <Button title="Cancel" onPress={handleCancel} />
+        </View>
+      </Modal>
       
     </ScrollView>
   );
@@ -218,5 +267,23 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginVertical: 10,
+    width: '80%',
+    textAlign: 'center',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
