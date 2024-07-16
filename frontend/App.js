@@ -20,6 +20,7 @@ export default function App() {
   const [cardCount, setCardCount] = useState('');
   const [cardCountInteger, setCardCountInteger] = useState(0);
   const [error, setError] = useState('');
+  const [winningPercentage, setWinningPercentage] = useState('');
 
   
   useEffect(() => {
@@ -98,13 +99,14 @@ export default function App() {
     formData.append('cardCount', cardCountInteger);
 
     try {
-      const response = await axios.post('http://10.0.0.91:8080/winning-percentage', formData, {
+      const response = await axios.post('http://ec2-23-22-41-166.compute-1.amazonaws.com:80/winning-percentage', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'API-KEY': API_KEY,
         },
       });
       console.log('Response:', response.data);
+      setWinningPercentage(response.data)
     } catch (error) {
       console.error('Error uploading images:', error);
     }
@@ -148,6 +150,36 @@ export default function App() {
     </View>
   );
 
+  const renderWinningPercentage = () => {
+    return (
+      <View style={styles.winningPercentageContainer}>
+        <Text style={styles.winningPercentageText}>{winningPercentage}</Text>
+      </View>
+    );
+  }
+
+  const renderResetButton = () => {
+    return (
+      <View style={styles.resetButtonContainer}>
+        <TouchableOpacity style={styles.resetButton} onPress={reset}>
+          <Text style={styles.resetButtonText}>Reset</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const reset = () => {
+    setPhoto1(null);
+    setPhoto2(null);
+    setHasTakenFlopPicture(false);
+    setCardCount('');
+    setCardCountInteger(0);
+    setWinningPercentage('');
+    setError('');
+    setIsCameraReady1(false);
+    setIsCameraReady2(false);
+  }
+
 
   if (hasPermission === null) {
     return <View />;
@@ -162,7 +194,7 @@ export default function App() {
         <Text style={styles.headerText}>PokerBuddy</Text>
       </View>
       {!hasTakenFlopPicture && renderCamera(cameraRef1, photo1, setPhoto1, 1, isCameraReady1, setIsCameraReady1, submitCommunityCards)}
-      {hasTakenFlopPicture && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2, submitFlop)}
+      {hasTakenFlopPicture && !winningPercentage && renderCamera(cameraRef2, photo2, setPhoto2, 2, isCameraReady2, setIsCameraReady2, submitFlop)}
       <Modal isVisible={isModalVisible}>
         <View style={styles.modalContent}>
           <Text>Enter the number of cards in the photo (0-5):</Text>
@@ -177,6 +209,8 @@ export default function App() {
           <Button title="Cancel" onPress={handleCancel} />
         </View>
       </Modal>
+      {winningPercentage && renderWinningPercentage()}
+      {winningPercentage && renderResetButton()}
       
     </ScrollView>
   );
@@ -285,5 +319,31 @@ const styles = StyleSheet.create({
   error: {
     color: 'red',
     marginBottom: 10,
+  },
+  winningPercentageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: height,
+  },
+  winningPercentageText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'blue',
+  },
+  resetButtonContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resetButton: {
+    backgroundColor: 'red',
+    padding: 15,
+    borderRadius: 10,
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
